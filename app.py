@@ -3,10 +3,10 @@ from twilio.twiml.messaging_response import MessagingResponse
 
 app = Flask(__name__)
 
-# Simple in-memory store for demo (you can replace with DB)
-user_sessions = {}
+# Store sessions (replace with DB later)
+sessions = {}
 
-# Example products
+# Sample product data
 PRODUCTS = {
     "Electronics": ["iPhone 15", "Samsung Galaxy S24", "Sony Headphones"],
     "Clothing": ["T-shirt", "Jeans", "Sneakers"],
@@ -14,117 +14,106 @@ PRODUCTS = {
 }
 
 @app.route("/whatsapp", methods=["POST"])
-def whatsapp_reply():
-    incoming_msg = request.values.get("Body", "").strip().lower()
-    sender = request.values.get("From")
-
+def whatsapp_bot():
+    sender = request.values.get("From", "")
+    body = request.values.get("Body", "").strip().lower()
     resp = MessagingResponse()
     msg = resp.message()
 
-    # Initialize session
-    if sender not in user_sessions:
-        user_sessions[sender] = {"step": "start"}
+    if sender not in sessions:
+        sessions[sender] = {"step": "start"}
 
-    step = user_sessions[sender]["step"]
+    step = sessions[sender]["step"]
 
     # Start conversation
-    if "hi" in incoming_msg or step == "start":
-        reply = (
-            "👋 *Welcome to ShopEasy!*\n"
-            "How can I help you today?\n\n"
+    if body in ["hi", "hello", "menu", "start", "hey"] or step == "start":
+        msg.body(
+            "👋 Welcome to *ShopEasy!*\n\n"
+            "Please choose:\n"
             "1️⃣ Browse Products\n"
             "2️⃣ Track Order\n"
             "3️⃣ Contact Support"
         )
-        user_sessions[sender]["step"] = "main_menu"
-        msg.body(reply)
+        sessions[sender]["step"] = "main_menu"
         return str(resp)
 
-    # Main menu options
+    # Main menu
     if step == "main_menu":
-        if incoming_msg == "1":
-            categories = "\n".join([f"- {cat}" for cat in PRODUCTS.keys()])
-            reply = f"🛍️ Choose a category:\n\n{categories}\n\n(Type category name)"
-            user_sessions[sender]["step"] = "category"
-        elif incoming_msg == "2":
-            reply = "🔍 Please enter your order ID to track:"
-            user_sessions[sender]["step"] = "track_order"
-        elif incoming_msg == "3":
-            reply = "📞 Our support team will contact you shortly.\nYou can also email: support@shopeasy.com"
-            user_sessions[sender]["step"] = "start"
+        if body == "1":
+            cats = "\n".join([f"- {c}" for c in PRODUCTS.keys()])
+            msg.body(f"🛍️ Choose category:\n\n{cats}\n\n(Type category name)")
+            sessions[sender]["step"] = "category"
+        elif body == "2":
+            msg.body("🔍 Enter your Order ID:")
+            sessions[sender]["step"] = "track"
+        elif body == "3":
+            msg.body("💬 Support: Please email support@shopeasy.com")
+            sessions[sender]["step"] = "start"
         else:
-            reply = "❌ Invalid choice. Please enter 1, 2, or 3."
-        msg.body(reply)
+            msg.body("❌ Invalid option. Type 1, 2, or 3.")
         return str(resp)
 
-    # Product browsing
+    # Category handling
     if step == "category":
-        category = incoming_msg.title()
-        if category in PRODUCTS:
-            items = "\n".join([f"- {item}" for item in PRODUCTS[category]])
-            reply = f"🛒 *{category}*:\n\n{items}\n\n(Type product name to order)"
-            user_sessions[sender]["step"] = "product"
-            user_sessions[sender]["category"] = category
+        cat = body.title()
+        if cat in PRODUCTS:
+            items = "\n".join([f"- {p}" for p in PRODUCTS[cat]])
+            msg.body(f"🛒 *{cat}* items:\n\n{items}\n\nType product name to order")
+            sessions[sender]["category"] = cat
+            sessions[sender]["step"] = "product"
         else:
-            reply = "⚠️ Category not found. Please type a valid category name."
-        msg.body(reply)
+            msg.body("⚠️ Unknown category. Try again.")
         return str(resp)
 
-    # Product selection
+    # Product handling
     if step == "product":
-        product_name = incoming_msg.title()
-        category = user_sessions[sender].get("category")
-        if product_name in PRODUCTS.get(category, []):
-            reply = (
-                f"✅ You selected *{product_name}*.\n"
-                "Please enter quantity:"
-            )
-            user_sessions[sender]["product"] = product_name
-            user_sessions[sender]["step"] = "quantity"
+        cat = sessions[sender]["category"]
+        if body.title() in PRODUCTS[cat]:
+            sessions[sender]["product"] = body.title()
+            msg.body(f"How many *{body.title()}* would you like?")
+            sessions[sender]["step"] = "quantity"
         else:
-            reply = "⚠️ Product not found. Please type one from the list."
-        msg.body(reply)
+            msg.body("❌ Invalid product. Please type one from the list.")
         return str(resp)
 
-    # Quantity input
+    # Quantity
     if step == "quantity":
-        if incoming_msg.isdigit():
-            quantity = int(incoming_msg)
-            product = user_sessions[sender]["product"]
-            reply = (
-                f"🧾 Order Summary:\n"
+        if body.isdigit():
+            qty = int(body)
+            sessions[sender]["quantity"] = qty
+            product = sessions[sender]["product"]
+            msg.body(
+                f"🧾 Confirm your order:\n"
                 f"Product: {product}\n"
-                f"Quantity: {quantity}\n\n"
-                "Type *confirm* to place order or *cancel* to go back."
+                f"Quantity: {qty}\n\n"
+                f"Type *confirm* to place or *cancel* to abort."
             )
-            user_sessions[sender]["quantity"] = quantity
-            user_sessions[sender]["step"] = "confirm_order"
+            sessions[sender]["step"] = "confirm"
         else:
-            reply = "Please enter a valid number for quantity."
-        msg.body(reply)
+            msg.body("Please enter a valid quantity number.")
         return str(resp)
 
-    # Order confirmation
-    if step == "confirm_order":
-        if "confirm" in incoming_msg:
-            product = user_sessions[sender]["product"]
-            quantity = user_sessions[sender]["quantity"]
-            reply = (
-                f"🎉 Order confirmed!\n"
-                f"{quantity} × {product} will be processed soon.\n\n"
-                "Thank you for shopping with ShopEasy! 💚"
+    # Confirmation
+    if step == "confirm":
+        if body == "confirm":
+            prod = sessions[sender]["product"]
+            qty = sessions[sender]["quantity"]
+            msg.body(
+                f"✅ Order confirmed!\n"
+                f"{qty} x {prod} will be delivered soon.\n\n"
+                f"Thank you for shopping with ShopEasy! 💚"
             )
-            user_sessions[sender]["step"] = "start"
-        elif "cancel" in incoming_msg:
-            reply = "❌ Order canceled. Returning to main menu."
-            user_sessions[sender]["step"] = "start"
+            sessions[sender]["step"] = "start"
+        elif body == "cancel":
+            msg.body("❌ Order canceled. Type 'hi' to start again.")
+            sessions[sender]["step"] = "start"
         else:
-            reply = "Please type *confirm* or *cancel*."
-        msg.body(reply)
+            msg.body("Type *confirm* or *cancel*.")
         return str(resp)
 
-    msg.body("⚙️ Sorry, I didn’t understand that. Type 'hi' to start again.")
+    msg.body("⚙️ Sorry, I didn't understand. Type 'hi' to start again.")
     return str(resp)
 
+
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    app.run(host="0.0.0.0", port=8080)
