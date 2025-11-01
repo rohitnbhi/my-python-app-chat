@@ -16,20 +16,20 @@ PRODUCTS = {
 @app.route("/whatsapp", methods=["POST"])
 def whatsapp_bot():
     import gspread
-    from oauth2client.service_account import ServiceAccountCredentials
+    from google.oauth2.service_account import Credentials
 
-    scope = ["https://spreadsheets.google.com/feeds",
-             "https://www.googleapis.com/auth/spreadsheets",
-             "https://www.googleapis.com/auth/drive.file",
-             "https://www.googleapis.com/auth/drive"]
+    scope = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
+    ]
 
-    creds = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
+    creds = Credentials.from_service_account_file("service_account.json", scopes=scope)
     client = gspread.authorize(creds)
 
     sheet = client.open("Whatsapp Orders").sheet1
-    sheet.append_row(["Test", "✅ Bot Connected Successfully!"])
-    print("✅ Test row added successfully!")
-    
+    sheet.append_row(["✅ Connection OK"])
+    print("✅ Added row successfully!")
+
     sender = request.values.get("From", "")
     body = request.values.get("Body", "").strip().lower()
     resp = MessagingResponse()
