@@ -26,7 +26,7 @@ def whatsapp_bot():
     creds = ServiceAccountCredentials.from_json_keyfile_name("service_account.json", scope)
     client = gspread.authorize(creds)
 
-    sheet = client.open("WhatsApp Orders").sheet1
+    sheet = client.open("Whatsapp Orders").sheet1
     sheet.append_row(["Test", "✅ Bot Connected Successfully!"])
     print("✅ Test row added successfully!")
     
