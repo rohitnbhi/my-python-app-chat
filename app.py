@@ -144,7 +144,8 @@ def whatsapp_bot():
         if body == "confirm":
             prod = sessions[sender]["product"]
             qty = sessions[sender]["quantity"]
-            store_order_secure("Rohit", sender, prod, qty, 1598)
+            amount = sessions[sender]["amount"]
+            store_order_secure("Rohit", sender, prod, qty, amount)
 
             msg.body(
                 f"✅ Order confirmed!\n"
