@@ -22,7 +22,7 @@ import requests
 from datetime import datetime
 
 def store_order_secure(orderid, customer_name, phone, product, quantity, amount):
-    GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxkgqfoaLu1AASwAh0H52xI6GSFny3CsQ8g6EVvOY0b5dj9duGdOu02ZD08uGBIYO5jkw/exec"
+    GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzGlVfBEZfP34Y9e6vEuQsVrxe_mSFKGX7v0ZvyUpMjjjoEHSHCKOJkkB0jlZAbmcHp0A/exec"
 
     payload = {
         "orderid": orderid,
