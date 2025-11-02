@@ -51,7 +51,6 @@ def whatsapp_bot():
     sheet = client.open("Whatsapp Orders").sheet1
     sheet.append_row(["✅ Connection OK"])
     print("✅ Added row successfully!")'''
-    store_order_secure("Rohit", "+919876543210", "Shoes", 2, 1598)
 
     sender = request.values.get("From", "")
     body = request.values.get("Body", "").strip().lower()
@@ -136,6 +135,8 @@ def whatsapp_bot():
         if body == "confirm":
             prod = sessions[sender]["product"]
             qty = sessions[sender]["quantity"]
+            store_order_secure("Rohit", sender, prod, qty, 1598)
+
             msg.body(
                 f"✅ Order confirmed!\n"
                 f"{qty} x {prod} will be delivered soon.\n\n"
