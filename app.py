@@ -13,9 +13,31 @@ PRODUCTS = {
     "Home": ["Smart Bulb", "Vacuum Cleaner", "Air Purifier"]
 }
 
+import requests
+from datetime import datetime
+
+def store_order_secure(customer_name, phone, product, quantity, amount):
+    GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxExampleID/exec"
+
+    payload = {
+        "customer_name": customer_name,
+        "phone": phone,
+        "product": product,
+        "quantity": quantity,
+        "amount": amount
+    }
+
+    res = requests.post(GOOGLE_WEBHOOK_URL, json=payload)
+
+    if res.status_code == 200:
+        print("✅ Order stored successfully in Google Sheet")
+    else:
+        print("❌ Failed to store order:", res.text)
+
+
 @app.route("/whatsapp", methods=["POST"])
 def whatsapp_bot():
-    import gspread
+    '''import gspread
     from google.oauth2.service_account import Credentials
 
     scope = [
@@ -28,7 +50,8 @@ def whatsapp_bot():
 
     sheet = client.open("Whatsapp Orders").sheet1
     sheet.append_row(["✅ Connection OK"])
-    print("✅ Added row successfully!")
+    print("✅ Added row successfully!")'''
+    store_order_secure("Rohit", "+919876543210", "Shoes", 2, 1598)
 
     sender = request.values.get("From", "")
     body = request.values.get("Body", "").strip().lower()
