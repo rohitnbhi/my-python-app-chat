@@ -148,7 +148,7 @@ def whatsapp_bot():
             prod = sessions[sender]["product"]
             qty = sessions[sender]["quantity"]
             amount = sessions[sender]["amount"]
-            orderid = random.randint(100000 , 900000);
+            orderid = random.randint(100000 , 900000)
             store_order_secure(orderid,"Rohit", sender, prod, qty, amount)
             msg.body(
                 f"✅ Order confirmed!\n"
