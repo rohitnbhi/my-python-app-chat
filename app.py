@@ -5,7 +5,6 @@ app = Flask(__name__)
 
 # Store sessions (replace with DB later)
 sessions = {}
-
 # Sample product data
 PRODUCTS = {
     "Electronics": ["iPhone 15", "Samsung Galaxy S24", "Sony Headphones"],
@@ -22,10 +21,11 @@ AMOUNTS = {
 import requests
 from datetime import datetime
 
-def store_order_secure(customer_name, phone, product, quantity, amount):
+def store_order_secure(orderid, customer_name, phone, product, quantity, amount):
     GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxkgqfoaLu1AASwAh0H52xI6GSFny3CsQ8g6EVvOY0b5dj9duGdOu02ZD08uGBIYO5jkw/exec"
 
     payload = {
+        "orderid": orderid,
         "customer_name": customer_name,
         "phone": phone,
         "product": product,
@@ -43,6 +43,7 @@ def store_order_secure(customer_name, phone, product, quantity, amount):
 
 @app.route("/whatsapp", methods=["POST"])
 def whatsapp_bot():
+    orderID = 1
     '''import gspread
     from google.oauth2.service_account import Credentials
 
@@ -145,8 +146,8 @@ def whatsapp_bot():
             prod = sessions[sender]["product"]
             qty = sessions[sender]["quantity"]
             amount = sessions[sender]["amount"]
-            store_order_secure("Rohit", sender, prod, qty, amount)
-
+            store_order_secure(orderID,"Rohit", sender, prod, qty, amount)
+            orderID +=1
             msg.body(
                 f"✅ Order confirmed!\n"
                 f"{qty} x {prod} will be delivered soon.\n\n"
