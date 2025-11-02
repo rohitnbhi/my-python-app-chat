@@ -14,7 +14,7 @@ PRODUCTS = {
     "Home": ["Smart Bulb", "Vacuum Cleaner", "Air Purifier"]
 }
 
-GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxmPNbnyFdoDQmv1stxaMsUJq_uwOLEiRvYdpAHAyAgbdQSYURR-2ZxwNwdoX7Mjl6_WA/exec"
+GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxkrxB0EE6jz6FxTwt7OEmj8wCZvaoIvrWAbji3-nsJwgYgPRqYNoCGxfD6Vx7g5hV7Qg/exec"
 
 AMOUNTS = {
     "iPhone 15": 200,
@@ -148,7 +148,7 @@ def whatsapp_bot():
             prod = sessions[sender]["product"]
             qty = sessions[sender]["quantity"]
             amount = sessions[sender]["amount"]
-            orderid = 'ORD-' + random.randint(100000 , 900000);
+            orderid = random.randint(100000 , 900000);
             store_order_secure(orderid,"Rohit", sender, prod, qty, amount)
             msg.body(
                 f"✅ Order confirmed!\n"
@@ -163,8 +163,8 @@ def whatsapp_bot():
             msg.body("Type *confirm* or *cancel*.")
         return str(resp)
 
-    def get_order_by_id(order_id):
-        params = {"order_id": order_id}
+    def get_order_by_id(orderid):
+        params = {"orderid": orderid}
         res = requests.get(GOOGLE_WEBHOOK_URL, params=params)
         if res.status_code == 200:
             data = res.json()
@@ -173,18 +173,14 @@ def whatsapp_bot():
 
     #Tracking
     if step == "track":
-        msg_body = request.values.get("Body", "").strip().lower()
-        parts = msg_body.split()
-        if len(parts) == 2:
-            order_id = parts[1].upper()
-            order = get_order_by_id(order_id)
-            if order:
-                msg.body(
-                    f"📦 *Order ID:* {order_id}\n🛍 Product: {order['Product']}\n🔢 Quantity: {order['Quantity']}\n💰 Amount: ₹{order['Amount']}\n📅 Date: {order['Timestamp']}")
-            else:
-                msg.body("❌ Order not found. Please check your Order ID.")
+        orderid = request.values.get("Body", "").strip()
+        order = get_order_by_id(orderid)
+        if order:
+            msg.body(
+                f"📦 *Order ID:* {orderid}\n🛍 Product: {order['Product']}\n🔢 Quantity: {order['Quantity']}\n💰 Amount: ₹{order['Amount']}\n📅 Date: {order['Timestamp']}\n Status: {order['orderid']}")
         else:
-            msg.body("⚠️ Usage: *track <order_id>*")
+            msg.body("❌ Order not found. Please check your Order ID.")
+
     msg.body("⚙️ Sorry, I didn't understand. Type 'hi' to start again.")
     return str(resp)
 
