@@ -13,6 +13,10 @@ PRODUCTS = {
     "Home": ["Smart Bulb", "Vacuum Cleaner", "Air Purifier"]
 }
 
+AMOUNTS = {
+    "iPhone 15": 200
+}
+
 import requests
 from datetime import datetime
 
@@ -119,10 +123,13 @@ def whatsapp_bot():
             qty = int(body)
             sessions[sender]["quantity"] = qty
             product = sessions[sender]["product"]
+            amount = AMOUNTS[product]*qty
+            sessions[sender]["amount"] = amount
             msg.body(
                 f"🧾 Confirm your order:\n"
                 f"Product: {product}\n"
                 f"Quantity: {qty}\n\n"
+                f"Amount: {amount}\n\n"
                 f"Type *confirm* to place or *cancel* to abort."
             )
             sessions[sender]["step"] = "confirm"
