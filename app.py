@@ -1,3 +1,5 @@
+import random
+
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 
@@ -12,6 +14,8 @@ PRODUCTS = {
     "Home": ["Smart Bulb", "Vacuum Cleaner", "Air Purifier"]
 }
 
+GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxmPNbnyFdoDQmv1stxaMsUJq_uwOLEiRvYdpAHAyAgbdQSYURR-2ZxwNwdoX7Mjl6_WA/exec"
+
 AMOUNTS = {
     "iPhone 15": 200,
     "Samsung Galaxy S24": 200,
@@ -22,8 +26,6 @@ import requests
 from datetime import datetime
 
 def store_order_secure(orderid, customer_name, phone, product, quantity, amount):
-    GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbztqp-LOQtKnMQItx_k6LEMdjFU_mBmxhbOzks8-qxtKRNlR6c-VARVm0fSlK5kS1YEBw/exec"
-
     payload = {
         "orderid": orderid,
         "customer_name": customer_name,
@@ -43,7 +45,7 @@ def store_order_secure(orderid, customer_name, phone, product, quantity, amount)
 
 @app.route("/whatsapp", methods=["POST"])
 def whatsapp_bot():
-    orderID = 1
+
     '''import gspread
     from google.oauth2.service_account import Credentials
 
@@ -146,8 +148,8 @@ def whatsapp_bot():
             prod = sessions[sender]["product"]
             qty = sessions[sender]["quantity"]
             amount = sessions[sender]["amount"]
-            store_order_secure(orderID,"Rohit", sender, prod, qty, amount)
-            orderID +=1
+            orderid = 'ORD-' + random.randint(100000 , 900000);
+            store_order_secure(orderid,"Rohit", sender, prod, qty, amount)
             msg.body(
                 f"✅ Order confirmed!\n"
                 f"{qty} x {prod} will be delivered soon.\n\n"
@@ -161,6 +163,28 @@ def whatsapp_bot():
             msg.body("Type *confirm* or *cancel*.")
         return str(resp)
 
+    def get_order_by_id(order_id):
+        params = {"order_id": order_id}
+        res = requests.get(GOOGLE_WEBHOOK_URL, params=params)
+        if res.status_code == 200:
+            data = res.json()
+            return data[0] if data else None
+        return None
+
+    #Tracking
+    if step == "track":
+        msg_body = request.values.get("Body", "").strip().lower()
+        parts = msg_body.split()
+        if len(parts) == 2:
+            order_id = parts[1].upper()
+            order = get_order_by_id(order_id)
+            if order:
+                msg.body(
+                    f"📦 *Order ID:* {order_id}\n🛍 Product: {order['Product']}\n🔢 Quantity: {order['Quantity']}\n💰 Amount: ₹{order['Amount']}\n📅 Date: {order['Timestamp']}")
+            else:
+                msg.body("❌ Order not found. Please check your Order ID.")
+        else:
+            msg.body("⚠️ Usage: *track <order_id>*")
     msg.body("⚙️ Sorry, I didn't understand. Type 'hi' to start again.")
     return str(resp)
 
