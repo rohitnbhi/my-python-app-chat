@@ -141,7 +141,7 @@ def whatsapp_bot():
 
     #Address
     if step == "awaiting_address":
-        address = body
+        sessions[sender]["address"] = body
         qty= sessions[sender]["quantity"]
         product = sessions[sender]["product"]
         amount = sessions[sender]["amount"]
@@ -150,17 +150,18 @@ def whatsapp_bot():
             f"Product: {product}\n"
             f"Quantity: {qty}\n\n"
             f"Amount: {amount}\n\n"
-            f"Address: {address}\n\n"
+            f"Address: {sessions[sender]["address"]}\n\n"
             f"Type *confirm* to place or *cancel* to abort."
         )
     # Confirmation
     if step == "confirm":
         if body == "confirm":
+            address = sessions[sender]["address"]
             prod = sessions[sender]["product"]
             qty = sessions[sender]["quantity"]
             amount = sessions[sender]["amount"]
             orderid = random.randint(100000 , 900000)
-            store_order_secure(orderid,"Rohit", sender, prod, qty, amount)
+            store_order_secure(orderid,"Rohit", sender, prod, qty, amount, address)
             msg.body(
                 f"✅ Order confirmed!\n"
                 f"{qty} x {prod} will be delivered soon.\n\n"
