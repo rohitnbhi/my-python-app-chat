@@ -14,7 +14,9 @@ PRODUCTS = {
 }
 
 AMOUNTS = {
-    "iPhone 15": 200
+    "iPhone 15": 200,
+    "Samsung Galaxy S24": 200,
+    "Sony Headphones": 200
 }
 
 import requests
