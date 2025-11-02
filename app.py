@@ -14,7 +14,7 @@ PRODUCTS = {
     "Home": ["Smart Bulb", "Vacuum Cleaner", "Air Purifier"]
 }
 
-GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxuGBocoGKbJHp6yxxlAUt-xiW55jm5-LIEhcxZ_fxeXvOM01Fe4Ap18eRbk5yMGg-7Qw/exec"
+GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxkKNVC-XVGpQwoJliNcURwvVPFC1WLQiklWq53lWk4tiOKWkdS7Gi0Z5Q9OVx8bYVsew/exec"
 
 AMOUNTS = {
     "iPhone 15": 200,
@@ -25,14 +25,15 @@ AMOUNTS = {
 import requests
 from datetime import datetime
 
-def store_order_secure(orderid, customer_name, phone, product, quantity, amount):
+def store_order_secure(orderid, customer_name, phone, product, quantity, amount, address):
     payload = {
         "orderid": orderid,
         "customer_name": customer_name,
         "phone": phone,
         "product": product,
         "quantity": quantity,
-        "amount": amount
+        "amount": amount,
+        "address": address
     }
 
     res = requests.post(GOOGLE_WEBHOOK_URL, json=payload)
@@ -131,17 +132,27 @@ def whatsapp_bot():
             amount = AMOUNTS[product]*qty
             sessions[sender]["amount"] = amount
             msg.body(
-                f"🧾 Confirm your order:\n"
-                f"Product: {product}\n"
-                f"Quantity: {qty}\n\n"
-                f"Amount: {amount}\n\n"
-                f"Type *confirm* to place or *cancel* to abort."
+                f"🧾 Provide your address:\n"
             )
-            sessions[sender]["step"] = "confirm"
+            sessions[sender]["step"] = "awaiting_address"
         else:
             msg.body("Please enter a valid quantity number.")
         return str(resp)
 
+    #Address
+    if step == "awaiting_address":
+        address = body
+        qty= sessions[sender]["quantity"]
+        product = sessions[sender]["product"]
+        amount = sessions[sender]["amount"]
+        msg.body(
+            f"🧾 Confirm your order:\n"
+            f"Product: {product}\n"
+            f"Quantity: {qty}\n\n"
+            f"Amount: {amount}\n\n"
+            f"Address: {address}\n\n"
+            f"Type *confirm* to place or *cancel* to abort."
+        )
     # Confirmation
     if step == "confirm":
         if body == "confirm":
