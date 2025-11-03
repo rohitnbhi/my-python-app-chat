@@ -153,6 +153,8 @@ def whatsapp_bot():
             f"Address: {sessions[sender]["address"]}\n\n"
             f"Type *confirm* to place or *cancel* to abort."
         )
+        sessions[sender]["step"] = "confirm"
+        return str(resp)
     # Confirmation
     if step == "confirm":
         if body == "confirm":
