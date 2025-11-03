@@ -117,7 +117,6 @@ def whatsapp_bot():
         cat = sessions[sender]["category"]
         if body.title() in PRODUCTS[cat]:
             sessions[sender]["product"] = body.title()
-            msg.media("1.jpg")
             msg.body(f"How many *{body.title()}* would you like?")
             sessions[sender]["step"] = "quantity"
         else:
