@@ -165,7 +165,7 @@ def whatsapp_bot():
             orderid = random.randint(100000 , 900000)
             store_order_secure(orderid,"Rohit", sender, prod, qty, amount, address)
             msg.body(
-                f"✅ Order confirmed!\n"
+                f"✅ Order {orderid} confirmed!\n"
                 f"{qty} x {prod} will be delivered soon.\n\n"
                 f"Thank you for shopping with ShopEasy! 💚"
             )
@@ -195,7 +195,6 @@ def whatsapp_bot():
         else:
             msg.body("❌ Order not found. Please check your Order ID.")
 
-    msg.body("⚙️ Sorry, I didn't understand. Type 'hi' to start again.")
     return str(resp)
 
 
