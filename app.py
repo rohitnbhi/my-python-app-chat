@@ -191,7 +191,7 @@ def whatsapp_bot():
         order = get_order_by_id(orderid)
         if order:
             msg.body(
-                f"📦 *Order ID:* {orderid}\n🛍 Product: {order['Product']}\n🔢 Quantity: {order['Quantity']}\n💰 Amount: ₹{order['Amount']}\n📅 Date: {order['Timestamp']}\n Status: {order['Status']}")
+                f"📦 *Order ID:* {orderid}\n🛍 Product: {order['Product']}\n🔢 Quantity: {order['Quantity']}\n💰 Amount: ₹{order['Amount']}\n📅 Status: {order['Status']}")
         else:
             msg.body("❌ Order not found. Please check your Order ID.")
 
