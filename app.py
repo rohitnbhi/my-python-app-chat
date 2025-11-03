@@ -117,8 +117,8 @@ def whatsapp_bot():
         cat = sessions[sender]["category"]
         if body.title() in PRODUCTS[cat]:
             sessions[sender]["product"] = body.title()
-            msg = resp.message("How many *{body.title()}* would you like?")
-            msg.media("https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.amazon.in%2FSony-Cancellation-Headphones-Multi-Point-Connection%2Fdp%2FB0BS1QCFHX&psig=AOvVaw2drwpbD_VspMesyCkQMyro&ust=1762234948186000&source=images&cd=vfe&opi=89978449&ved=2ahUKEwidoobyotWQAxVVQWwGHQrjD8UQjRx6BAgAEBo")
+
+            msg.body(f"How many *{body.title()}* would you like?")
             sessions[sender]["step"] = "quantity"
         else:
             msg.body("❌ Invalid product. Please type one from the list.")
