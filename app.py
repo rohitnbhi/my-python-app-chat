@@ -177,6 +177,7 @@ def whatsapp_bot():
                 "1️⃣ UPI Payment\n"
                 "2️⃣ Cash on Delivery\n\nReply with '1' or '2'."
             )
+            sessions[sender]["step"] = "payment"
         elif body == "cancel":
             msg.body("❌ Order canceled. Type 'hi' to start again.")
             sessions[sender]["step"] = "start"
@@ -185,38 +186,48 @@ def whatsapp_bot():
         return str(resp)
 
     # Step 5: Payment method
-    if body == "1":
-        msg.body(
-                "💰 Please make payment via UPI:\n\n"
-                "UPI ID: *smartshop@upi*\n"
-                "After payment, reply *paid* to confirm."
-            )
-        return str(resp)
+    if step == "payment":
+        if body == "1":
+            msg.body(
+                    "💰 Please make payment via UPI:\n\n"
+                    "UPI ID: *smartshop@upi*\n"
+                    "After payment, reply *paid* to confirm."
+                )
+        elif body == "cancel":
+            msg.body("❌ Order canceled. Type 'hi' to start again.")
+            sessions[sender]["step"] = "start"
+            return str(resp)
 
-    if body == "2":
-        address = sessions[sender]["address"]
-        prod = sessions[sender]["product"]
-        qty = sessions[sender]["quantity"]
-        amount = sessions[sender]["amount"]
-        orderid= sessions[sender]["orderid"]
-        store_order_secure(orderid, "Rohit", sender, prod, qty, amount, address, "Order Confirmed", "Cash on Delivery", "")
+        if body == "2":
+            address = sessions[sender]["address"]
+            prod = sessions[sender]["product"]
+            qty = sessions[sender]["quantity"]
+            amount = sessions[sender]["amount"]
+            orderid= sessions[sender]["orderid"]
+            store_order_secure(orderid, "Rohit", sender, prod, qty, amount, address, "Order Confirmed", "Cash on Delivery", "")
+    
+            msg.body("✅ Your order is confirmed with *Cash on Delivery*! Thank you 🛍️")
+            sessions[sender]["step"] = "start"
+        elif body == "cancel":
+            msg.body("❌ Order canceled. Type 'hi' to start again.")
+            sessions[sender]["step"] = "start"
+            return str(resp)
 
-        msg.body("✅ Your order is confirmed with *Cash on Delivery*! Thank you 🛍️")
-        sessions[sender]["step"] = "start"
-        return str(resp)
-
-    # Step 6: Payment confirmation
-    if "paid" in body:
-        address = sessions[sender]["address"]
-        prod = sessions[sender]["product"]
-        qty = sessions[sender]["quantity"]
-        amount = sessions[sender]["amount"]
-        orderid = sessions[sender]["orderid"]
-        store_order_secure(orderid, "Rohit", sender, prod, qty, amount, address, "Order Confirmed", "UPI payment pending", "")
-
-        msg.body("✅ Payment confirmed! Your order is being processed 🚚 Please provide UPI transaction id")
-        sessions[sender]["step"] = "UPI"
-        return str(resp)
+        # Step 6: Payment confirmation
+        if "paid" in body:
+            address = sessions[sender]["address"]
+            prod = sessions[sender]["product"]
+            qty = sessions[sender]["quantity"]
+            amount = sessions[sender]["amount"]
+            orderid = sessions[sender]["orderid"]
+            store_order_secure(orderid, "Rohit", sender, prod, qty, amount, address, "Order Confirmed", "UPI payment pending", "")
+    
+            msg.body("✅ Payment confirmed! Your order is being processed 🚚 Please provide UPI transaction id")
+            sessions[sender]["step"] = "UPI"
+            return str(resp)
+        elif body == "cancel":
+            msg.body("❌ Order canceled. Type 'hi' to start again.")
+            sessions[sender]["step"] = "start"
 
     # Step 7: UPI transaction ID
     if step == "UPI":
@@ -230,6 +241,9 @@ def whatsapp_bot():
                 store_order_secure(orderid, "Rohit", sender, prod, qty, amount, address, "Order Confirmed",
                                    "UPI payment done.", transaction_id)
                 msg.body("✅ Payment confirmed! Your order is being processed")
+                sessions[sender]["step"] = "start"
+            elif body == "cancel":
+                msg.body("❌ Order canceled. Type 'hi' to start again.")
                 sessions[sender]["step"] = "start"
             else:
                 msg.body("Please enter a valid UPI transaction ID.")
