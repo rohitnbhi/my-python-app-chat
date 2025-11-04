@@ -177,7 +177,6 @@ def whatsapp_bot():
                 "1️⃣ UPI Payment\n"
                 "2️⃣ Cash on Delivery\n\nReply with '1' or '2'."
             )
-            sessions[sender]["step"] = "start"
         elif body == "cancel":
             msg.body("❌ Order canceled. Type 'hi' to start again.")
             sessions[sender]["step"] = "start"
