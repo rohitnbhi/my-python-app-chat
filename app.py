@@ -14,7 +14,7 @@ PRODUCTS = {
     "Home": ["Smart Bulb", "Vacuum Cleaner", "Air Purifier"]
 }
 
-GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxMR-GfbRYFNtwxR_LPDjwJacFJHUyEmYoNOFzc1K-SKxBWZBvRLtwnZpYcr59mDpG9iQ/exec"
+GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwjzNTNgLYGARUMXF_e9HawuXwqxKX_GXCKu3MkldHQaOc_-9n0UvkZluuRfY_opYUATQ/exec"
 
 AMOUNTS = {
     "iPhone 15": 200,
@@ -25,7 +25,7 @@ AMOUNTS = {
 import requests
 from datetime import datetime
 
-def store_order_secure(orderid, customer_name, phone, product, quantity, amount, address):
+def store_order_secure(orderid, customer_name, phone, product, quantity, amount, address, status, payment, transaction_id):
     payload = {
         "orderid": orderid,
         "customer_name": customer_name,
@@ -33,7 +33,10 @@ def store_order_secure(orderid, customer_name, phone, product, quantity, amount,
         "product": product,
         "quantity": quantity,
         "amount": amount,
-        "address": address
+        "address": address,
+        "Status": status,
+        "payment": payment,
+        "transaction_id": transaction_id
     }
 
     res = requests.post(GOOGLE_WEBHOOK_URL, json=payload)
@@ -164,11 +167,15 @@ def whatsapp_bot():
             qty = sessions[sender]["quantity"]
             amount = sessions[sender]["amount"]
             orderid = random.randint(100000 , 900000)
-            store_order_secure(orderid,"Rohit", sender, prod, qty, amount, address)
+            sessions[sender]["orderid"]= orderid
+            store_order_secure(orderid,"Rohit", sender, prod, qty, amount, address, "Order Confirmed", "Payment Pending", "")
             msg.body(
                 f"✅ Order {orderid} confirmed!\n"
                 f"{qty} x {prod} will be delivered soon.\n\n"
-                f"Thank you for shopping with ShopEasy! 💚"
+                f"Thank you for shopping with ShopEasy! 💚\n\n"
+                "💳 Please choose a *payment method*:\n"
+                "1️⃣ UPI Payment\n"
+                "2️⃣ Cash on Delivery\n\nReply with '1' or '2'."
             )
             sessions[sender]["step"] = "start"
         elif body == "cancel":
@@ -177,6 +184,57 @@ def whatsapp_bot():
         else:
             msg.body("Type *confirm* or *cancel*.")
         return str(resp)
+
+    # Step 5: Payment method
+    if body == "1":
+        msg.body(
+                "💰 Please make payment via UPI:\n\n"
+                "UPI ID: *smartshop@upi*\n"
+                "After payment, reply *paid* to confirm."
+            )
+        return str(resp)
+
+    if body == "2":
+        address = sessions[sender]["address"]
+        prod = sessions[sender]["product"]
+        qty = sessions[sender]["quantity"]
+        amount = sessions[sender]["amount"]
+        orderid= sessions[sender]["orderid"]
+        store_order_secure(orderid, "Rohit", sender, prod, qty, amount, address, "Order Confirmed", "Cash on Delivery", "")
+
+        msg.body("✅ Your order is confirmed with *Cash on Delivery*! Thank you 🛍️")
+        sessions[sender]["step"] = "start"
+        return str(resp)
+
+    # Step 6: Payment confirmation
+    if "paid" in body:
+        address = sessions[sender]["address"]
+        prod = sessions[sender]["product"]
+        qty = sessions[sender]["quantity"]
+        amount = sessions[sender]["amount"]
+        orderid = sessions[sender]["orderid"]
+        store_order_secure(orderid, "Rohit", sender, prod, qty, amount, address, "Order Confirmed", "UPI payment pending", "")
+
+        msg.body("✅ Payment confirmed! Your order is being processed 🚚 Please provide UPI transaction id")
+        sessions[sender]["step"] = "UPI"
+        return str(resp)
+
+    # Step 7: UPI transaction ID
+    if step == "UPI":
+            if body.isdigit():
+                transaction_id = int(body)
+                address = sessions[sender]["address"]
+                prod = sessions[sender]["product"]
+                qty = sessions[sender]["quantity"]
+                amount = sessions[sender]["amount"]
+                orderid = sessions[sender]["orderid"]
+                store_order_secure(orderid, "Rohit", sender, prod, qty, amount, address, "Order Confirmed",
+                                   "UPI payment done.", transaction_id)
+                msg.body("✅ Payment confirmed! Your order is being processed")
+                sessions[sender]["step"] = "start"
+            else:
+                msg.body("Please enter a valid UPI transaction ID.")
+            return str(resp)
 
     def get_order_by_id(orderid):
         params = {"orderid": orderid}
