@@ -14,7 +14,7 @@ PRODUCTS = {
     "Home": ["Smart Bulb", "Vacuum Cleaner", "Air Purifier"]
 }
 
-GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxkKNVC-XVGpQwoJliNcURwvVPFC1WLQiklWq53lWk4tiOKWkdS7Gi0Z5Q9OVx8bYVsew/exec"
+GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxMR-GfbRYFNtwxR_LPDjwJacFJHUyEmYoNOFzc1K-SKxBWZBvRLtwnZpYcr59mDpG9iQ/exec"
 
 AMOUNTS = {
     "iPhone 15": 200,
@@ -122,7 +122,7 @@ def whatsapp_bot():
             sessions[sender]["step"] = "quantity"
         else:
             msg.body("❌ Invalid product. Please type one from the list.")
-        return str(resp)    
+        return str(resp)
 
     # Quantity
     if step == "quantity":
@@ -197,7 +197,6 @@ def whatsapp_bot():
             msg.body("❌ Order not found. Please check your Order ID.")
 
     return str(resp)
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
