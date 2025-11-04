@@ -117,11 +117,12 @@ def whatsapp_bot():
         cat = sessions[sender]["category"]
         if body.title() in PRODUCTS[cat]:
             sessions[sender]["product"] = body.title()
+            msg.media("https://raw.githubusercontent.com/rohitnbhi/my-python-app-chat/refs/heads/main/1.jpg")
             msg.body(f"How many *{body.title()}* would you like?")
             sessions[sender]["step"] = "quantity"
         else:
             msg.body("❌ Invalid product. Please type one from the list.")
-        return str(resp)
+        return str(resp)    
 
     # Quantity
     if step == "quantity":
