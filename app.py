@@ -14,7 +14,7 @@ PRODUCTS = {
     "Home": ["Smart Bulb", "Vacuum Cleaner", "Air Purifier"]
 }
 
-GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzwOz4MLFy8-ZkZnSeIfbKGD8Q9Y8Ufvbr5swp8mEgvaSotGMY7_anjZDjXnWFwPp0Kvw/exec"
+GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxdqdU_gvkj3pK72Wny_bdV4sGeWXS2ALapBIuSFLdqDuDDw-tELeBwpMm1HeYb5tYh_Q/exec"
 
 AMOUNTS = {
     "iPhone 15": 200,
@@ -34,7 +34,7 @@ def store_order_secure(orderid, customer_name, phone, product, quantity, amount,
         "quantity": quantity,
         "amount": amount,
         "address": address,
-        "Status": status,
+        "status": status,
         "payment": payment,
         "transaction_id": transaction_id
     }
@@ -263,7 +263,7 @@ def whatsapp_bot():
         order = get_order_by_id(orderid)
         if order:
             msg.body(
-                f"📦 *Order ID:* {orderid}\n🛍 Product: {order['Product']}\n🔢 Quantity: {order['Quantity']}\n💰 Amount: ₹{order['Amount']}\n📅 Status: {order['Status']}")
+                f"📦 *Order ID:* {orderid}\n🛍 Product: {order['Product']}\n🔢 Quantity: {order['Quantity']}\n💰 Amount: ₹{order['Amount']}\n📅 Status: {order['status']}")
         else:
             msg.body("❌ Order not found. Please check your Order ID.")
 
