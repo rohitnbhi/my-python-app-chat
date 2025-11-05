@@ -14,7 +14,7 @@ PRODUCTS = {
     "Home": ["Smart Bulb", "Vacuum Cleaner", "Air Purifier"]
 }
 
-GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxdqdU_gvkj3pK72Wny_bdV4sGeWXS2ALapBIuSFLdqDuDDw-tELeBwpMm1HeYb5tYh_Q/exec"
+GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzpQ7iAM69aOU79jc15Kd0Jb2vCg1GrqPBwYC6Fz07hNiZMTlp9GpPVw6EcEzGlfJMHpA/exec"
 
 AMOUNTS = {
     "iPhone 15": 200,
@@ -168,7 +168,7 @@ def whatsapp_bot():
             amount = sessions[sender]["amount"]
             orderid = random.randint(100000 , 900000)
             sessions[sender]["orderid"]= orderid
-            store_order_secure(orderid,"Rohit", sender, prod, qty, amount, address, "Order Confirmed", "Payment Pending", "")
+            #store_order_secure(orderid,"Rohit", sender, prod, qty, amount, address, "Order Confirmed", "Payment Pending", "")
             msg.body(
                 f"✅ Order {orderid} confirmed!\n"
                 f"{qty} x {prod} will be delivered soon.\n\n"
@@ -220,7 +220,7 @@ def whatsapp_bot():
             qty = sessions[sender]["quantity"]
             amount = sessions[sender]["amount"]
             orderid = sessions[sender]["orderid"]
-            store_order_secure(orderid, "Rohit", sender, prod, qty, amount, address, "Order Confirmed", "UPI payment pending", "")
+            #store_order_secure(orderid, "Rohit", sender, prod, qty, amount, address, "Order Confirmed", "UPI payment pending", "")
 
             msg.body("✅ Payment confirmed! Your order is being processed 🚚 Please provide UPI transaction id")
             sessions[sender]["step"] = "UPI"
