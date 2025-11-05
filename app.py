@@ -14,7 +14,7 @@ PRODUCTS = {
     "Home": ["Smart Bulb", "Vacuum Cleaner", "Air Purifier"]
 }
 
-GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyZhwpF6nxkP28jxiKjxTXimHH9V4fwJjioT0ewdwHkqW1rP0i7ow8X4yhuqth4mqTQSQ/exec"
+GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzwOz4MLFy8-ZkZnSeIfbKGD8Q9Y8Ufvbr5swp8mEgvaSotGMY7_anjZDjXnWFwPp0Kvw/exec"
 
 AMOUNTS = {
     "iPhone 15": 200,
